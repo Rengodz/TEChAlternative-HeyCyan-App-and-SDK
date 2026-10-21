@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@voidrot/openai-featherless-compatible": "^0.3.1"
+  }
+}
