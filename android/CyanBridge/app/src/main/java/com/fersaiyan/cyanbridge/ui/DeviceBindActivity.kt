@@ -142,7 +142,11 @@ class DeviceBindActivity : BaseActivity() {
                 userOverridden = false,
             ),
         )
-        startActivity(Intent(this, MetaPairingActivity::class.java))
+        Toast.makeText(
+            this,
+            "Meta glasses are not supported in this build.",
+            Toast.LENGTH_LONG,
+        ).show()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

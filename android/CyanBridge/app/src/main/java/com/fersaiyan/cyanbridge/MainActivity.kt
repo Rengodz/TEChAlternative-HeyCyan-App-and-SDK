@@ -74,7 +74,6 @@ import com.oudmon.ble.base.communication.bigData.resp.GlassesDeviceNotifyListene
 import com.oudmon.ble.base.communication.bigData.resp.GlassesDeviceNotifyRsp
 import com.fersaiyan.cyanbridge.databinding.AcitivytMainBinding
 import com.fersaiyan.cyanbridge.ui.DeviceBindActivity
-import com.fersaiyan.cyanbridge.ui.MetaPairingActivity
 import com.fersaiyan.cyanbridge.ui.ChatListActivity
 import com.fersaiyan.cyanbridge.ui.ChatThreadActivity
 import com.fersaiyan.cyanbridge.ui.CommunityPluginPrefs
@@ -671,11 +670,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
 
     private val metaWearablePermissionLauncher =
-        registerForActivityResult(Wearables.RequestPermissionContract()) { result ->
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             val action = pendingMetaCameraAction
             pendingMetaCameraAction = null
             enabledMetaCameraCheckActive = false
-            if (result.getOrDefault(PermissionStatus.Denied) == PermissionStatus.Granted) {
+            if (granted) {
                 action?.invoke()
             } else {
                 showMetaError("DAT camera permission", "Meta camera permission was denied")
@@ -1421,7 +1420,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                 onGranted = action,
                 onRequestNeeded = {
                     pendingMetaCameraAction = action
-                    metaWearablePermissionLauncher.launch(Permission.CAMERA)
+                    metaWearablePermissionLauncher.launch(Manifest.permission.CAMERA)
                 },
                 onError = { error ->
                     showMetaError("DAT camera permission", error)
@@ -1740,7 +1739,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         getOrCreateMeizuMyvuManager().connect(it, this, userInitiated = true)
                     } ?: startKtxActivity<DeviceBindActivity>()
                 } else if (isMetaRaybanSelected()) {
-                    startActivity(Intent(this, MetaPairingActivity::class.java))
+                    Toast.makeText(
+                        this,
+                        "Meta glasses are not supported in this build.",
+                        Toast.LENGTH_LONG,
+                    ).show()
                 } else {
                     binding.btnConnect.performClick()
                 }
@@ -1952,7 +1955,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             }
             GlassesDashboardAction.MetaRegister -> binding.btnMetaRegister.performClick()
             GlassesDashboardAction.MetaOpenPairing ->
-                startActivity(Intent(this, MetaPairingActivity::class.java))
+                Toast.makeText(
+                    this,
+                    "Meta glasses are not supported in this build.",
+                    Toast.LENGTH_LONG,
+                ).show()
             GlassesDashboardAction.MetaOpenMetaAi -> openMetaAiAppOrStore()
             GlassesDashboardAction.MetaUnregister -> binding.btnMetaUnregister.performClick()
             GlassesDashboardAction.MetaStartSession -> binding.btnMetaSessionStart.performClick()
@@ -7214,7 +7221,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     batteryPercent = myvu.batteryPercent,
                     lastError = myvu.lastError,
                     canConnect = !connected && myvu.selectedAddress != null,
-                    canDisconnect = myvu.protocolState != com.myvu.client.service.ConnectionState.IDLE.name,
+                    canDisconnect = myvu.protocolState != "IDLE",
                     canSend = connected,
                 ),
             )
